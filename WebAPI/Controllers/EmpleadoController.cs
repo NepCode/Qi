@@ -17,11 +17,11 @@ namespace WebAPI.Controllers
     public class EmpleadoController : BaseAPIController
     {
 
-        private readonly IEmpleadoRepository _personaFisicaRepository;
+        private readonly IEmpleadoRepository _empleadoRepository;
         private readonly IMapper _mapper;
         public EmpleadoController(IEmpleadoRepository personaFisicaRepository, IMapper mapper)
         {
-            _personaFisicaRepository = personaFisicaRepository;
+            _empleadoRepository = personaFisicaRepository;
             _mapper = mapper;
         }
 
@@ -31,34 +31,33 @@ namespace WebAPI.Controllers
 
         // GET: api/<EmpleadoController>
         [HttpPost("get")]
-        public async Task<ActionResult<ServiceResponseList<IReadOnlyList<Empleado>>>> GetPersonasFisicas([FromBody] DtParameters dtParameters)
+        public async Task<ActionResult<ServiceResponseList<IReadOnlyList<Empleado>>>> GetEmpleados([FromBody] DtParameters dtParameters)
         {
-            var data = await _personaFisicaRepository.GetAllWithSpec(dtParameters);
+            var data = await _empleadoRepository.GetAllWithSpec(dtParameters);
             return Ok(data);
                
         }
 
         // GET: api/<EmpleadoController>
         [HttpGet]
-        public async Task<ActionResult<ServiceResponseList<IReadOnlyList<Empleado>>>> GetPersonasFisicas4()
+        public async Task<ActionResult<ServiceResponseList<IReadOnlyList<Empleado>>>> GetEmpleados4()
         {
-            var data = await _personaFisicaRepository.GetAll();
+            var data = await _empleadoRepository.GetAll();
             return Ok(data);
-
         }
 
         // GET api/<EmpleadoController>/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ServiceResponse<Empleado>>> GetPersonaFisica(int id)
+        public async Task<ActionResult<ServiceResponse<Empleado>>> GetEmpleadoById(int id)
         {
-            var result = await _personaFisicaRepository.GetByIdWithSpec(id);
+            var result = await _empleadoRepository.GetByIdWithSpec(id);
             if (result.Data == null) return NotFound();
             return Ok( result);
         }
 
         // POST api/<EmpleadoController>
         [HttpPost]
-        public async Task<ActionResult<ServiceResponse<Empleado>>> AddPersonaFisica(EmpleadoCreateDTO personaFisica)
+        public async Task<ActionResult<ServiceResponse<Empleado>>> AddEmpleado(EmpleadoCreateDTO personaFisica)
         {
             var personaFisicaModel = _mapper.Map<EmpleadoCreateDTO, Empleado>(personaFisica);
 
@@ -78,7 +77,7 @@ namespace WebAPI.Controllers
                 return BadRequest(response);
             }
 
-            var result = await _personaFisicaRepository.Add(personaFisicaModel);
+            var result = await _empleadoRepository.Add(personaFisicaModel);
             if (result.Success)
             {
                 return Ok(result);
@@ -109,7 +108,7 @@ namespace WebAPI.Controllers
             }
 
 
-            var result = await _personaFisicaRepository.Update(id, _mapper.Map<Empleado>(personaFisica));
+            var result = await _empleadoRepository.Update(id, _mapper.Map<Empleado>(personaFisica));
             if (result.Data == null) return NotFound();
             if (result.Success) return Ok( result);
             return BadRequest(result);
@@ -119,7 +118,7 @@ namespace WebAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<ServiceResponse<int>>> Delete(int id)
         {
-            var result = await _personaFisicaRepository.Delete(id);
+            var result = await _empleadoRepository.Delete(id);
             if (result.Data == null) return NotFound();
             if(result.Success) return Ok( result);
             return BadRequest(result);
