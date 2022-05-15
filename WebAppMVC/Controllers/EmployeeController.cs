@@ -15,6 +15,9 @@ namespace WebAppMVC.Controllers
             client = new HttpClient();
             client.BaseAddress = baseAddress;
         }
+
+
+        //READ
         public IActionResult Index()
         {
             List<EmployeeViewModel> employees = new List<EmployeeViewModel>();
@@ -30,6 +33,9 @@ namespace WebAppMVC.Controllers
             return View(employees2.Data);
         }
 
+
+
+        //CREATE
         public IActionResult Create()
         {
             return View();
@@ -53,7 +59,7 @@ namespace WebAppMVC.Controllers
         }
 
 
-
+        //EDIT
         public IActionResult Edit (int id)
         {
             ServiceResponse<EmployeeViewModelUpdate> employee = new ServiceResponse<EmployeeViewModelUpdate>();
@@ -91,7 +97,23 @@ namespace WebAppMVC.Controllers
 
 
 
+        //DELETE
+        public ActionResult DeleteView(int id)
+        {
+            ServiceResponse<EmployeeViewModel> employee = new ServiceResponse<EmployeeViewModel>();
+            HttpResponseMessage response = client.GetAsync(client.BaseAddress + "/empleado/" + id).Result;
 
+            if (response.IsSuccessStatusCode)
+            {
+                string data = response.Content.ReadAsStringAsync().Result;
+                employee = JsonConvert.DeserializeObject<ServiceResponse<EmployeeViewModel>>(data);
+                return View("Delete", employee.Data );
+            }
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Delete(int id)
         {
             ServiceResponse<EmployeeViewModel> result = new ServiceResponse<EmployeeViewModel>();
@@ -102,9 +124,9 @@ namespace WebAppMVC.Controllers
             {
                 string data = response.Content.ReadAsStringAsync().Result;
                 result = JsonConvert.DeserializeObject<ServiceResponse<EmployeeViewModel>>(data);
+                return RedirectToAction("Index");
             }
-            return RedirectToAction("Index");
-
+            return View("Delete");
         }
 
 
