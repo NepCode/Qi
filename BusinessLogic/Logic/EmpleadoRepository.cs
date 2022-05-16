@@ -1,5 +1,4 @@
 ﻿using BusinessLogic.Data;
-using BusinessLogic.Extension;
 using Core.Interfaces;
 using Core.Models;
 using Microsoft.EntityFrameworkCore;
@@ -66,58 +65,25 @@ namespace BusinessLogic.Logic
            
         }
 
-        public async Task<ServiceResponseList<IReadOnlyList<Empleado>>> GetAll()
+        public async Task<ServiceResponseList<IReadOnlyList<Empleado>>> GetAll(EmpleadoParams? empleadoParams)
         {
-            var results = await _context.Empleados.ToListAsync();
+            var results = await _context.Empleados
+                 .Where
+                 (
+                    (e =>
+                        ( string.IsNullOrEmpty(empleadoParams.Nombre) || e.Nombre.Contains(empleadoParams.Nombre) ) &&
+                        ( string.IsNullOrEmpty(empleadoParams.Rfc) || e.Rfc.Contains(empleadoParams.Rfc) ) &&
+                        ( !empleadoParams.Estatus.HasValue || ( (bool)empleadoParams.Estatus ? e.FechaBaja == null  :  e.FechaBaja != null ) ) 
+                    ) 
+                 )
+                 .ToListAsync();
             return new ServiceResponseList<IReadOnlyList<Empleado>>()
             {
                 Data = results
             };
         }
 
-        public async Task<ServiceResponseList<IReadOnlyList<Empleado>>> GetAllWithSpec(DtParameters dtParameters)
-        {
-
-            var searchBy = dtParameters.Search?.Value;
-            var orderCriteria = string.Empty;
-            var orderAscendingDirection = true;
-            if (dtParameters.Order != null)
-            {
-                orderCriteria = dtParameters.Columns[dtParameters.Order[0].Column].Data;
-                orderAscendingDirection = dtParameters.Order[0].Dir.ToString().ToLower() == "asc";
-            }
-            else
-            {
-                orderCriteria = "IdPersonaFisica";
-                orderAscendingDirection = true;
-            }
-            var result = await _context.Empleados.ToListAsync();
-            if (!string.IsNullOrEmpty(searchBy))
-            {
-                result = result.Where(r => r.Nombre != null && r.Nombre.ToUpper().Contains(searchBy.ToUpper()) ||
-                                           r.ApellidoPaterno != null && r.ApellidoPaterno.ToUpper().Contains(searchBy.ToUpper()) ||
-                                           r.ApellidoMaterno != null && r.ApellidoMaterno.ToUpper().Contains(searchBy.ToUpper()) )
-                    .ToList();
-            }
-            result = orderAscendingDirection ? result.AsQueryable().OrderByDynamic(orderCriteria, DtOrderDir.Asc).ToList() : result.AsQueryable().OrderByDynamic(orderCriteria, DtOrderDir.Desc).ToList();
-            var filteredResultsCount = result.Count();
-            var totalResultsCount = await _context.Empleados.CountAsync();
-
-
-            //var results = await _context.TbPersonasFisicas.ToListAsync();
-            return new ServiceResponseList<IReadOnlyList<Empleado>>()
-            {
-                draw = dtParameters.Draw,
-                recordsTotal = totalResultsCount,
-                recordsFiltered = filteredResultsCount,
-                Data = result
-                    .Skip(dtParameters.Start)
-                    .Take(dtParameters.Length)
-                    .ToList()
-            };
-        }
-
-        public async Task<ServiceResponse<Empleado>> GetByIdWithSpec(int id)
+        public async Task<ServiceResponse<Empleado>> GetByIdWith(int id)
         {
             var result = await _context.Empleados.FirstOrDefaultAsync(pf => pf.Id == id);
             return new ServiceResponse<Empleado>() { 

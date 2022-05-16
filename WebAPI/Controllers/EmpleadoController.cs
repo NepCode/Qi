@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using BusinessLogic.Data;
-using BusinessLogic.Extension;
 using Core.Interfaces;
 using Core.Models;
 using FluentValidation.Results;
@@ -26,23 +25,11 @@ namespace WebAPI.Controllers
         }
 
 
-
-
-
-        // GET: api/<EmpleadoController>
-        [HttpPost("get")]
-        public async Task<ActionResult<ServiceResponseList<IReadOnlyList<Empleado>>>> GetEmpleados([FromBody] DtParameters dtParameters)
-        {
-            var data = await _empleadoRepository.GetAllWithSpec(dtParameters);
-            return Ok(data);
-               
-        }
-
         // GET: api/<EmpleadoController>
         [HttpGet]
-        public async Task<ActionResult<ServiceResponseList<IReadOnlyList<Empleado>>>> GetEmpleados4()
+        public async Task<ActionResult<ServiceResponseList<IReadOnlyList<Empleado>>>> GetEmpleados4( [FromQuery] EmpleadoParams? empleadoParams)
         {
-            var data = await _empleadoRepository.GetAll();
+            var data = await _empleadoRepository.GetAll(empleadoParams);
             return Ok(data);
         }
 
@@ -50,7 +37,7 @@ namespace WebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ServiceResponse<Empleado>>> GetEmpleadoById(int id)
         {
-            var result = await _empleadoRepository.GetByIdWithSpec(id);
+            var result = await _empleadoRepository.GetByIdWith(id);
             if (result.Data == null) return NotFound();
             return Ok( result);
         }
