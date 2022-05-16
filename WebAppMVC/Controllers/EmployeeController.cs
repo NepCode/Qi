@@ -18,19 +18,34 @@ namespace WebAppMVC.Controllers
 
 
         //READ
-        public IActionResult Index()
+        public IActionResult Index(string nombre, string rfc, bool? estatus)
         {
             List<EmployeeViewModel> employees = new List<EmployeeViewModel>();
             ServiceResponseList<IReadOnlyList<EmployeeViewModel>> employees2 = new ServiceResponseList<IReadOnlyList<EmployeeViewModel>>();
-            HttpResponseMessage response = client.GetAsync(client.BaseAddress + "/empleado").Result;
+            HttpResponseMessage response = client.GetAsync(client.BaseAddress + "/empleado?Nombre="+nombre+"&Rfc="+rfc+"&Estatus="+estatus).Result;
 
             if (response.IsSuccessStatusCode)
             {
                 string data = response.Content.ReadAsStringAsync().Result;
-                //employees = JsonConvert.DeserializeObject<List<EmployeeViewModel>>(data);
                 employees2 = JsonConvert.DeserializeObject<ServiceResponseList<IReadOnlyList<EmployeeViewModel>>>(data);
             }
             return View(employees2.Data);
+        }
+
+        
+        public IActionResult Search( string nombre, string rfc,  bool estatus)
+        {
+            if( !string.IsNullOrEmpty(nombre) && !string.IsNullOrEmpty(rfc) )
+            {
+                return RedirectToAction("Index", new
+                {
+                    nombre = nombre,
+                    rfc = rfc,
+                    estatus = estatus
+                }
+                );
+            }
+            return View();
         }
 
 

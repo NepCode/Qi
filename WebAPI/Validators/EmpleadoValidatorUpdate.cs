@@ -42,7 +42,7 @@ namespace Core.Models
                    .Cascade(CascadeMode.Stop)
                    .NotEmpty()
                    .WithMessage("No ha indicado el estado civil del empleado.")
-                   .Length(2, 20)
+                   .Length(1, 20)
                    .WithMessage("{PropertyName} tiene {TotalLength} letras. Debe tener una longitud entre {MinLength} y {MaxLength} letras.");
             }
         }

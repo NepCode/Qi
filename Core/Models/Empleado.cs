@@ -20,6 +20,5 @@ namespace BusinessLogic.Data
         public string Rfc { get; set; }
         public DateTime FechaAlta { get; set; }
         public DateTime? FechaBaja { get; set; } = null;
-        public bool? Activo { get; set; }
     }
 }
